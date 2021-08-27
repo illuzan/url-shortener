@@ -1,29 +1,44 @@
 import { useRouter } from 'next/router'
-import { useEffect } from 'react'
+import { supabase } from '../utils/supabase'
+
+const pageRedirect = (
+  res,
+  location,
+  { replace },
+) => {
+  res.writeHead(301, {
+    Location: location,
+  });
+  res.end();
+};
 
 export default function Page() {
   const router = useRouter()
-  const { slug } = router.query
-  console.log()
-  useEffect(() => {
-    if (slug?.length < 8) {
-      router.push('/')
-    }
-    async function getData() {
-      const response = await fetch('http://localhost:3000/api/url', {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ slug: slug })
-      })
-    }
-    getData()
-  }, [])
 
   return (
-    <button type="button" onClick={() => router.push('/post/abc')}>
-      Click me
-    </button>
+    <div>
+      <h1>Error occured! Try again</h1>
+      <button type="button" onClick={() => router.push('/')}>
+        Return Home
+      </button>
+    </div>
   )
+}
+
+export async function getServerSideProps({ params, res }) {
+  const baseUrl = 'http://localhost:3000/'
+  const { slug } = params
+
+  const { data: url, error } = await supabase
+    .from('url')
+    .select("*")
+    .eq('shortURL', slug)
+
+  if (error || url.length === 0) {
+    pageRedirect(res, baseUrl, { replace: true })
+  }
+  const { longURL } = url[0]
+  pageRedirect(res, longURL, { replace: true })
+
+  return {}
 }
