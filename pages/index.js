@@ -13,7 +13,7 @@ export default function Home() {
     event.preventDefault()
     setLoading(true)
     async function fetchShortUrl() {
-      const response = await fetch('http://localhost:3000/api/url', {
+      const response = await fetch('https://url-shortener-sable.vercel.app/api/url', {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -30,7 +30,7 @@ export default function Home() {
   }
 
   function copyToClipboard(textToCopy) {
-    navigator.clipboard.writeText(`http://localhost:3000/${textToCopy}`).catch((e) => {
+    navigator.clipboard.writeText(`https://url-shortener-sable.vercel.app/${textToCopy}`).catch((e) => {
       console.log(e)
     })
   }
@@ -72,7 +72,7 @@ export default function Home() {
               className="w-full px-4 py-3 mb-2 text-gray-800 border-2 border-blue-400 rounded bg-gray-50 focus:outline-none md:border-r-0 focus:bg-blue-50 md:rounded-r-none md:mb-0"
               type="url"
               required
-              value={`http://localhost:3000/${shortURL}`}
+              value={`https://url-shortener-sable.vercel.app/${shortURL}`}
             />
             <button className="w-full px-4 py-3 text-blue-100 bg-blue-600 rounded-r cursor-pointer hover:bg-blue-700 md:w-auto focus:outline-none focus:ring-2"
               onClick={() => copyToClipboard(shortURL)}

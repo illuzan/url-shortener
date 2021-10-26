@@ -26,7 +26,7 @@ export default function Page() {
 }
 
 export async function getServerSideProps({ params, res }) {
-  const baseUrl = 'http://localhost:3000/'
+  const baseUrl = 'https://url-shortener-sable.vercel.app/'
   const { slug } = params
 
   const { data: url, error } = await supabase
