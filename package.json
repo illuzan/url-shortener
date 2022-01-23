@@ -10,7 +10,7 @@
     "dev": "cross-env NODE_ENV=development run-p dev:*",
     "dev:css": "tailwindcss -w -i ./styles/app.css -o app/styles/app.css",
     "dev:remix": "remix watch",
-    "dev:wrangler": "wrangler pages dev ./public --watch ./build",
+    "dev:wrangler": "wrangler pages dev ./public --kv LONG_URL_KV --watch ./build ",
     "start": "npm run dev:wrangler"
   },
   "dependencies": {
