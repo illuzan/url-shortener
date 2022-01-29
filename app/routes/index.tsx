@@ -119,7 +119,6 @@ export default function Index() {
                 <button
                   type='submit'
                   tabIndex={state === 'success' ? -1 : 0}
-                  // onClick={() => setStates(!states)}
                   className='block w-full px-5 py-3 text-base font-medium text-white transition-colors bg-blue-500 border border-transparent rounded-md shadow disabled:bg-blue-400 sm:w-48 hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-600 sm:px-10 '
                 >
                   {state === 'submitting' ? 'Creating...' : 'Get Short URL'}
@@ -136,7 +135,7 @@ export default function Index() {
           {/* Output */}
           <div hidden={state !== 'success'}>
             <div className='py-10 sm:mx-auto sm:max-w-2xl sm:flex'>
-              <div className='flex-1 min-w-0'>
+              <div ref={successRef} className='flex-1 min-w-0'>
                 <input
                   className='block w-full px-5 py-3 text-base text-gray-700 placeholder-gray-500 border-2 border-gray-300 rounded-md shadow-sm disabled:bg-gray-200 focus:outline-none '
                   type='url'
