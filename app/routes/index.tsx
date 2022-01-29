@@ -4,7 +4,6 @@ import type { ActionFunction } from 'remix'
 import { Form, Link, useActionData, useTransition } from 'remix'
 
 export const action: ActionFunction = async ({ context, request }) => {
-  await new Promise((res) => setTimeout(res, 2000))
   const formData = await request.formData()
   const longUrl = formData.get('long-url')
 
