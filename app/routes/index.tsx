@@ -1,21 +1,41 @@
-import { useEffect, useState, useRef } from 'react'
+import { nanoid } from 'nanoid'
+import { useEffect, useRef } from 'react'
 import type { ActionFunction } from 'remix'
 import { Form, Link, useActionData, useTransition } from 'remix'
 
 export const action: ActionFunction = async ({ context, request }) => {
+  await new Promise((res) => setTimeout(res, 2000))
   const formData = await request.formData()
   const longUrl = formData.get('long-url')
 
-  return longUrl
+  if (typeof longUrl !== 'string') {
+    return { error: 'Enter a valid url' }
+  }
+
+  const expression =
+    /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/im
+
+  if (!expression.test(longUrl)) {
+    return { error: 'Enter a valid url' }
+  } else {
+    const shortUrl = nanoid(8)
+    await context.env.LONG_URL_KV.put(shortUrl, longUrl, {
+      // Keys expire in 30 days
+      expirationTtl: 2592000,
+    })
+    const url = `${new URL(request.url).origin}/${shortUrl}`
+    return { url }
+  }
 }
 
 export default function Index() {
   const actionData = useActionData()
   const transition = useTransition()
+
   const state: 'idle' | 'success' | 'error' | 'submitting' =
     transition.submission
       ? 'submitting'
-      : actionData?.subscription
+      : actionData?.url
       ? 'success'
       : actionData?.error
       ? 'error'
@@ -41,8 +61,12 @@ export default function Index() {
     mounted.current = true
   }, [state])
 
+  function copyToClipboard(url: string) {
+    navigator.clipboard.writeText(url)
+  }
+
   return (
-    <div className='relative flex flex-col justify-center min-h-screen py-6 overflow-hidden bg-gray-50 sm:py-12'>
+    <main className='relative flex flex-col justify-center min-h-screen py-6 overflow-hidden bg-gray-50 sm:py-12'>
       <img
         src='/background.jpg'
         alt=''
@@ -61,39 +85,86 @@ export default function Index() {
             and share.
           </p>
         </div>
-        {/* Input Container */}
+
+        {/* Container */}
         <div className='px-4 py-10 mx-auto sm:w-3/4 lg:w-2/3 xl:w-2/5 sm:p-10 md:rounded glass'>
-          <Form method='post' aria-hidden={state === 'success'}>
-            <fieldset className='py-10 sm:mx-auto sm:max-w-2xl sm:flex'>
+          {/* Input */}
+          <Form
+            replace
+            method='post'
+            className='check'
+            hidden={state === 'success'}
+          >
+            <fieldset
+              disabled={state === 'submitting'}
+              className='py-10 sm:mx-auto sm:max-w-2xl sm:flex '
+            >
               <div className='flex-1 min-w-0'>
                 <label htmlFor='long-url' className='sr-only'>
                   Long URL
                 </label>
                 <input
+                  aria-label='Url'
+                  aria-describedby='error-message'
+                  ref={inputRef}
                   required={true}
                   name='long-url'
                   id='long-url'
                   type='url'
-                  className='block w-full px-5 py-3 text-base text-gray-900 placeholder-gray-500 border border-transparent rounded-md shadow-sm disabled:bg-gray-200 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-blue-600 '
+                  tabIndex={state === 'success' ? -1 : 0}
+                  className='block w-full px-5 py-3 text-base text-gray-900 placeholder-gray-500 transition-colors border border-transparent rounded-md shadow-sm disabled:bg-gray-200 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-blue-600 '
                   placeholder='https://www.example.com/'
                 />
               </div>
               <div className='mt-4 sm:mt-0 sm:ml-3'>
                 <button
                   type='submit'
+                  tabIndex={state === 'success' ? -1 : 0}
                   // onClick={() => setStates(!states)}
-                  className='block w-full px-5 py-3 text-base font-medium text-white bg-blue-500 border border-transparent rounded-md shadow disabled:bg-blue-400 sm:w-48 hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-600 sm:px-10'
+                  className='block w-full px-5 py-3 text-base font-medium text-white transition-colors bg-blue-500 border border-transparent rounded-md shadow disabled:bg-blue-400 sm:w-48 hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-600 sm:px-10 '
                 >
                   {state === 'submitting' ? 'Creating...' : 'Get Short URL'}
                 </button>
               </div>
             </fieldset>
-            <p id='error-message'>
-              {state === 'error' ? actionData.message : <>&nbsp;</>}
+            <p
+              className='flex justify-center text-xl font-semibold text-red-400'
+              id='error-message'
+            >
+              {state === 'error' ? actionData.error : <>&nbsp;</>}
             </p>
           </Form>
+          {/* Output */}
+          <div hidden={state !== 'success'}>
+            <div className='py-10 sm:mx-auto sm:max-w-2xl sm:flex'>
+              <div className='flex-1 min-w-0'>
+                <input
+                  className='block w-full px-5 py-3 text-base text-gray-700 placeholder-gray-500 border-2 border-gray-300 rounded-md shadow-sm disabled:bg-gray-200 focus:outline-none '
+                  type='url'
+                  required
+                  value={actionData?.url ? actionData?.url : ''}
+                />
+              </div>
+              <div className='mt-4 sm:mt-0 sm:ml-3'>
+                <button
+                  className='block w-full px-5 py-3 text-base font-medium text-white transition-colors bg-blue-500 border border-transparent rounded-md shadow disabled:bg-blue-400 sm:w-48 hover:bg-blue-400 focus:outline-none focus:ring-2'
+                  onClick={() => copyToClipboard(actionData?.url)}
+                >
+                  <span className='sr-only'>(Click to copy to clipboard)</span>
+                  Copy URL
+                </button>
+              </div>
+            </div>
+            <Link
+              className='flex justify-center text-xl font-semibold text-gray-700'
+              to='.'
+              tabIndex={state === 'success' ? 0 : -1}
+            >
+              Create new link
+            </Link>
+          </div>
         </div>
       </div>
-    </div>
+    </main>
   )
 }
