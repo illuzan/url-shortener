@@ -33,9 +33,7 @@ export const links: LinksFunction = () => {
 }
 
 export default function App() {
-  splitbee.init({
-    token: 'PF4KML60PQWY',
-  })
+  splitbee.init({ token: 'PF4KML60PQWY' })
 
   return (
     <html lang='en'>
@@ -44,7 +42,6 @@ export default function App() {
         <meta name='viewport' content='width=device-width,initial-scale=1' />
         <Meta />
         <Links />
-        <script async src='https://cdn.splitbee.io/sb.js'></script>
       </head>
       <body>
         <Outlet />
