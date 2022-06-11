@@ -2,7 +2,10 @@ node_modules
 .DS_Store
 
 /.cache
+/functions/\[\[path\]\].js
+/functions/\[\[path\]\].js.map
 /build
 /public/build
 /app/styles/app.css
 /.mf
+.env

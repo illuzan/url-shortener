@@ -1,3 +1,4 @@
+import { LinksFunction, MetaFunction } from '@remix-run/cloudflare'
 import {
   Links,
   LiveReload,
@@ -5,9 +6,9 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-} from 'remix'
-import type { MetaFunction, LinksFunction } from 'remix'
+} from '@remix-run/react'
 import styles from './styles/app.css'
+import splitbee from '@splitbee/web'
 
 export const meta: MetaFunction = () => {
   return {
@@ -32,6 +33,10 @@ export const links: LinksFunction = () => {
 }
 
 export default function App() {
+  splitbee.init({
+    token: 'PF4KML60PQWY',
+  })
+
   return (
     <html lang='en'>
       <head>
@@ -39,12 +44,13 @@ export default function App() {
         <meta name='viewport' content='width=device-width,initial-scale=1' />
         <Meta />
         <Links />
+        <script async src='https://cdn.splitbee.io/sb.js'></script>
       </head>
       <body>
         <Outlet />
         <ScrollRestoration />
         <Scripts />
-        {process.env.NODE_ENV === 'development' && <LiveReload />}
+        <LiveReload />
       </body>
     </html>
   )

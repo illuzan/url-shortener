@@ -1,7 +1,7 @@
-import { nanoid } from 'nanoid'
+import { nanoid } from 'nanoid/non-secure'
 import { useEffect, useRef } from 'react'
-import type { ActionFunction } from 'remix'
-import { Form, Link, useActionData, useTransition } from 'remix'
+import { ActionFunction } from '@remix-run/cloudflare'
+import { Form, Link, useActionData, useTransition } from '@remix-run/react'
 
 export const action: ActionFunction = async ({ context, request }) => {
   const formData = await request.formData()
@@ -18,9 +18,9 @@ export const action: ActionFunction = async ({ context, request }) => {
     return { error: 'Enter a valid url' }
   } else {
     const shortUrl = nanoid(8)
-    await context.env.LONG_URL_KV.put(shortUrl, longUrl, {
+    await context.LONG_URL_KV.put(shortUrl, longUrl, {
       // Keys expire in 30 days
-      expirationTtl: 2592000,
+      // expirationTtl: 2592000,
     })
     const url = `${new URL(request.url).origin}/${shortUrl}`
     return { url }
