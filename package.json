@@ -5,15 +5,13 @@
   "license": "",
   "sideEffects": false,
   "scripts": {
-    "build": "run-s build:*",
-    "build:css": "npm run generate:css -- --minify",
-    "build:remix": "remix build",
-    "dev": "remix build && run-p dev:*",
-    "dev:css": "npm run generate:css -- --watch",
+    "build": "remix build",
     "dev:remix": "remix watch",
-    "generate:css": "npx tailwindcss -i ./styles/app.css -o ./app/styles/app.css",
-    "dev:wrangler": "cross-env NODE_ENV=development wrangler pages dev ./public --kv LONG_URL_KV",
-    "start": "cross-env NODE_ENV=production npm run dev:wrangler"
+    "dev:wrangler": "cross-env NODE_ENV=development npm run wrangler",
+    "dev": "npm-run-all build --parallel \"dev:*\"",
+    "start": "cross-env NODE_ENV=production npm run wrangler",
+    "typecheck": "tsc",
+    "wrangler": "wrangler pages dev ./public --kv LONG_URL_KV"
   },
   "dependencies": {
     "@remix-run/cloudflare": "^1.15.0",

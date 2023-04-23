@@ -9,3 +9,4 @@ node_modules
 /app/styles/app.css
 /.mf
 .env
+.dev.vars
